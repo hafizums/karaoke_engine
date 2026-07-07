@@ -7,6 +7,7 @@ from karaoke_engine.errors import (
     UnsupportedTranscriptFormatError,
 )
 from karaoke_engine.ass import AssWriter, KaraokeStyle, escape_ass_text
+from karaoke_engine.engine import CreateAssResult, KaraokeEngine
 from karaoke_engine.models import (
     KaraokeDocument,
     KaraokeLine,
@@ -20,7 +21,9 @@ from karaoke_engine.segmenter import SegmentOptions, segment_document
 __all__ = [
     "AssGenerationError",
     "AssWriter",
+    "CreateAssResult",
     "KaraokeDocument",
+    "KaraokeEngine",
     "KaraokeEngineError",
     "KaraokeLine",
     "KaraokeStyle",
