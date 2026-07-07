@@ -54,6 +54,13 @@ def build_ffmpeg_ass_burn_command(
     options: RenderOptions | None = None,
 ) -> list[str]:
     """Build an FFmpeg command list for ASS subtitle burn-in."""
+    if not str(video_path).strip():
+        raise RenderError("video_path must be non-empty")
+    if not str(ass_path).strip():
+        raise RenderError("ass_path must be non-empty")
+    if not str(output_path).strip():
+        raise RenderError("output_path must be non-empty")
+
     render_options = options or RenderOptions()
     escaped_ass_path = _escape_ass_filter_path(Path(ass_path))
     command = [
@@ -93,6 +100,8 @@ def render_ass_to_video(
         raise RenderError(f"Input video file does not exist: {source_video}")
     if not subtitle_file.is_file():
         raise RenderError(f"ASS subtitle file does not exist: {subtitle_file}")
+    if rendered_output.exists() and rendered_output.is_dir():
+        raise RenderError(f"Output path is an existing directory: {rendered_output}")
 
     rendered_output.parent.mkdir(parents=True, exist_ok=True)
     command = build_ffmpeg_ass_burn_command(
@@ -140,8 +149,9 @@ def render_ass_to_video(
 def _escape_ass_filter_path(path: Path) -> str:
     """Return an FFmpeg ``ass`` filter-safe path string."""
     posix_path = path.resolve().as_posix()
-    return (
-        posix_path.replace("\\", "\\\\")
-        .replace(":", "\\:")
-        .replace("'", "\\'")
-    )
+    if len(posix_path) >= 2 and posix_path[1] == ":":
+        inner = f"{posix_path[0]}\\:{posix_path[2:]}"
+    else:
+        inner = posix_path
+    inner = inner.replace("'", "\\'")
+    return f"'{inner}'"

@@ -24,6 +24,8 @@ class VideoInfo:
 
 def build_ffprobe_command(path: str | Path) -> list[str]:
     """Build an FFprobe command list for JSON stream metadata."""
+    if not str(path).strip():
+        raise RenderError("path must be non-empty")
     return [
         _FFPROBE_BINARY,
         "-v",

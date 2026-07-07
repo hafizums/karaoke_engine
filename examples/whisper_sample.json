@@ -1,0 +1,8 @@
+{
+  "text": "Aku cinta padamu",
+  "words": [
+    {"word": "Aku", "start": 0.0, "end": 0.4},
+    {"word": "cinta", "start": 0.4, "end": 0.75},
+    {"word": "padamu", "start": 0.75, "end": 1.55}
+  ]
+}

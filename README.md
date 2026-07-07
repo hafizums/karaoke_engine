@@ -2,30 +2,35 @@
 
 Lightweight, server-friendly karaoke subtitle engine for Python 3.10+.
 
-## What it does
+## Features
 
-`karaoke_engine` converts subtitle transcripts into **karaoke `.ass` subtitle files**, and can optionally **burn subtitles into MP4 video** using system FFmpeg:
+- Parse Whisper JSON, SRT, and WebVTT transcripts
+- Segment long lines into readable karaoke lines
+- Generate ASS karaoke subtitles with `\kf` timing
+- Optionally burn subtitles into MP4 with system FFmpeg
+- Validate documents and styles for production use
 
-1. Parse Whisper JSON, SRT, or VTT
-2. Optionally segment long lines into readable karaoke lines
-3. Write ASS with `\kf` karaoke timing
-4. Optionally render burned-in karaoke video with FFmpeg
+## Supported inputs
+
+| Format | Extension | Word timing | Notes |
+|--------|-----------|-------------|-------|
+| Whisper JSON | `.json` | Real per-word timing | Best option for karaoke |
+| SRT | `.srt` | Approximate | Cue duration split evenly across words |
+| WebVTT | `.vtt` | Approximate | Cue duration split evenly across words |
+
+SRT and VTT files usually provide line-level cues only. This engine derives approximate word timings and does **not** claim true word-level karaoke accuracy for those formats.
 
 ## What it does not do
 
-- It does **not** transcribe audio.
-- It does **not** call OpenAI or any external API.
-- It does **not** require PyTorch, CUDA, or local Whisper.
+- Transcribe audio
+- Call OpenAI or any external API
+- Require PyTorch, CUDA, or local Whisper
+- Bundle FFmpeg
 
-## Supported input
+## Server requirements
 
-- **Whisper JSON with word timestamps** — best option; provides real per-word karaoke timing.
-- **SRT** — supported with **approximate** word timing derived by evenly splitting each cue duration across its words. SRT files usually do not contain true word-level timestamps.
-- **VTT (WebVTT)** — supported with **approximate** word timing using the same cue-duration split approach. VTT files usually do not contain true word-level timestamps.
-
-## Optional FFmpeg rendering
-
-Video rendering is optional and requires system **`ffmpeg`** and **`ffprobe`** installed on the server. FFmpeg is not bundled with this package.
+- Python 3.10+
+- Optional: system `ffmpeg` and `ffprobe` on `PATH` for video rendering
 
 ## Install and development
 
@@ -34,14 +39,14 @@ pip install -e ".[dev]"
 python -m pytest -q
 ```
 
-## Basic ASS usage (Whisper JSON)
+## Basic ASS generation (Whisper JSON)
 
 ```python
 from karaoke_engine import KaraokeEngine, KaraokeStyle, SegmentOptions
 
 engine = KaraokeEngine()
 result = engine.create_ass(
-    transcript_path="transcript.json",
+    transcript_path="examples/whisper_sample.json",
     output_path="karaoke.ass",
     style=KaraokeStyle.default_1080p(),
     segment_options=SegmentOptions(max_words_per_line=5),
@@ -49,20 +54,20 @@ result = engine.create_ass(
 print(result.ass_path)
 ```
 
-## Basic ASS usage (SRT fallback)
+## Basic ASS generation (SRT fallback)
 
 ```python
 from karaoke_engine import KaraokeEngine
 
 engine = KaraokeEngine()
 result = engine.create_ass(
-    transcript_path="lyrics.srt",
+    transcript_path="examples/sample.srt",
     output_path="karaoke.ass",
 )
 print(result.source_format)  # srt_approx
 ```
 
-## Basic video render usage
+## Basic video render
 
 ```python
 from karaoke_engine import KaraokeEngine, RenderOptions
@@ -70,16 +75,58 @@ from karaoke_engine import KaraokeEngine, RenderOptions
 engine = KaraokeEngine()
 result = engine.render_video(
     video_path="input.mp4",
-    transcript_path="transcript.json",
+    transcript_path="examples/whisper_sample.json",
     output_path="karaoke_output.mp4",
     render_options=RenderOptions(crf=18, preset="veryfast"),
 )
 print(result.output_path)
 ```
 
-## Lower-level APIs
+## Error handling
 
-You can also use the components directly:
+```python
+from karaoke_engine import KaraokeEngine
+from karaoke_engine.errors import (
+    AssGenerationError,
+    RenderError,
+    TranscriptValidationError,
+    UnsupportedTranscriptFormatError,
+)
+
+engine = KaraokeEngine()
+
+try:
+    engine.create_ass(
+        transcript_path="transcript.json",
+        output_path="karaoke.ass",
+    )
+except UnsupportedTranscriptFormatError as exc:
+    print(f"Unsupported input: {exc}")
+except TranscriptValidationError as exc:
+    print(f"Invalid transcript: {exc}")
+except AssGenerationError as exc:
+    print(f"ASS write failed: {exc}")
+
+try:
+    engine.render_video(
+        video_path="input.mp4",
+        transcript_path="transcript.json",
+        output_path="karaoke_output.mp4",
+    )
+except RenderError as exc:
+    print(f"Render failed: {exc}")
+```
+
+## Production notes
+
+- The engine converts existing transcripts; it does not transcribe audio.
+- No OpenAI API calls are made by this package.
+- No PyTorch, CUDA, or local Whisper installation is required.
+- FFmpeg is optional and must be installed separately for `render_video()`.
+- SRT/VTT timing is approximate and should be treated as a fallback path.
+- Use Whisper JSON with word timestamps whenever possible for best karaoke quality.
+
+## Lower-level APIs
 
 - `parse_whisper_json()` / `load_whisper_json()`
 - `parse_srt_text()` / `load_srt()`
@@ -88,3 +135,11 @@ You can also use the components directly:
 - `AssWriter`
 - `build_ffmpeg_ass_burn_command()` / `render_ass_to_video()`
 - `probe_video()`
+
+## Examples
+
+Sample files live in `examples/`:
+
+- `whisper_sample.json`
+- `sample.srt`
+- `sample.vtt`

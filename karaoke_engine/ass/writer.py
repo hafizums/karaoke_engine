@@ -35,6 +35,13 @@ class AssWriter:
         play_res_y: int = 1080,
         title: str = "Karaoke",
     ) -> None:
+        if play_res_x <= 0:
+            raise ValueError("play_res_x must be > 0")
+        if play_res_y <= 0:
+            raise ValueError("play_res_y must be > 0")
+        if not title.strip():
+            raise ValueError("title must be non-empty")
+
         self.style = style or KaraokeStyle.default_1080p()
         self.play_res_x = play_res_x
         self.play_res_y = play_res_y
