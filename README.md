@@ -4,6 +4,26 @@ Lightweight, server-friendly karaoke subtitle engine for Python 3.10+.
 
 **Status:** initial release candidate (`0.1.0`).
 
+Convert transcript files (Whisper JSON, SRT, VTT) into ASS karaoke subtitles and optionally burn them into MP4 with system FFmpeg.
+
+## Documentation
+
+Full docs live in [`docs/`](docs/index.md):
+
+| Guide | Topic |
+|-------|-------|
+| [docs/index.md](docs/index.md) | Documentation home |
+| [docs/quickstart.md](docs/quickstart.md) | Install, test, first ASS output |
+| [docs/supported-inputs.md](docs/supported-inputs.md) | Whisper JSON vs SRT/VTT |
+| [docs/api-reference.md](docs/api-reference.md) | Public API |
+| [docs/ass-karaoke.md](docs/ass-karaoke.md) | `\kf` timing and styles |
+| [docs/ffmpeg-rendering.md](docs/ffmpeg-rendering.md) | Video burn-in |
+| [docs/real-openai-smoke-test.md](docs/real-openai-smoke-test.md) | Manual OpenAI + FFmpeg smoke test |
+| [docs/production-usage.md](docs/production-usage.md) | Server integration |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Common problems |
+| [docs/development.md](docs/development.md) | Contributing |
+| [docs/release.md](docs/release.md) | Release checklist |
+
 ## Features
 
 - Parse Whisper JSON, SRT, and WebVTT transcripts
@@ -14,20 +34,21 @@ Lightweight, server-friendly karaoke subtitle engine for Python 3.10+.
 
 ## Supported inputs
 
-| Format | Extension | Word timing | Notes |
-|--------|-----------|-------------|-------|
-| Whisper JSON | `.json` | Real per-word timing | Best option for karaoke |
-| SRT | `.srt` | Approximate | Cue duration split evenly across words |
-| WebVTT | `.vtt` | Approximate | Cue duration split evenly across words |
+| Format | Extension | Word timing | `source_format` | Notes |
+|--------|-----------|-------------|-----------------|-------|
+| Whisper JSON | `.json` | Real per-word timing | `whisper_json` | Best option for karaoke |
+| SRT | `.srt` | Approximate | `srt_approx` | Cue duration split evenly across words |
+| WebVTT | `.vtt` | Approximate | `vtt_approx` | Cue duration split evenly across words |
 
-SRT and VTT files usually provide line-level cues only. This engine derives approximate word timings and does **not** claim true word-level karaoke accuracy for those formats.
+> **Warning:** SRT and VTT provide line-level cues only. Word timing is **approximate** — not true karaoke accuracy. Use Whisper JSON whenever possible.
 
 ## What it does not do
 
 - Transcribe audio
-- Call OpenAI or any external API
+- Call OpenAI or any external API (inside the package)
 - Require PyTorch, CUDA, or local Whisper
 - Bundle FFmpeg
+- Provide web UI, browser rendering, or Frappe integration
 
 ## Server requirements
 
@@ -42,21 +63,37 @@ python -m pytest -q
 python scripts/release_check.py
 ```
 
-See `RELEASE_CHECKLIST.md` for the full pre-tag release workflow.
+See [docs/installation.md](docs/installation.md) and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
-## Basic ASS generation (Whisper JSON)
+## Quick usage: JSON → ASS
 
 ```python
-from karaoke_engine import KaraokeEngine, KaraokeStyle, SegmentOptions
+from karaoke_engine import KaraokeEngine, SegmentOptions
 
 engine = KaraokeEngine()
 result = engine.create_ass(
     transcript_path="examples/whisper_sample.json",
     output_path="karaoke.ass",
-    style=KaraokeStyle.default_1080p(),
     segment_options=SegmentOptions(max_words_per_line=5),
 )
-print(result.ass_path)
+print(result.ass_path, result.source_format)  # whisper_json
+```
+
+## Quick usage: video render
+
+Requires FFmpeg on `PATH`. See [docs/ffmpeg-rendering.md](docs/ffmpeg-rendering.md).
+
+```python
+from karaoke_engine import KaraokeEngine, RenderOptions
+
+engine = KaraokeEngine()
+result = engine.render_video(
+    video_path="input.mp4",
+    transcript_path="examples/whisper_sample.json",
+    output_path="karaoke_output.mp4",
+    render_options=RenderOptions(crf=18, preset="veryfast"),
+)
+print(result.output_path)
 ```
 
 ## Basic ASS generation (SRT fallback)
@@ -70,21 +107,6 @@ result = engine.create_ass(
     output_path="karaoke.ass",
 )
 print(result.source_format)  # srt_approx
-```
-
-## Basic video render
-
-```python
-from karaoke_engine import KaraokeEngine, RenderOptions
-
-engine = KaraokeEngine()
-result = engine.render_video(
-    video_path="input.mp4",
-    transcript_path="examples/whisper_sample.json",
-    output_path="karaoke_output.mp4",
-    render_options=RenderOptions(crf=18, preset="veryfast"),
-)
-print(result.output_path)
 ```
 
 ## Error handling
@@ -131,6 +153,8 @@ except RenderError as exc:
 - SRT/VTT timing is approximate and should be treated as a fallback path.
 - Use Whisper JSON with word timestamps whenever possible for best karaoke quality.
 
+See [docs/production-usage.md](docs/production-usage.md).
+
 ## Lower-level APIs
 
 - `parse_whisper_json()` / `load_whisper_json()`
@@ -141,9 +165,11 @@ except RenderError as exc:
 - `build_ffmpeg_ass_burn_command()` / `render_ass_to_video()`
 - `probe_video()`
 
+Documented in [docs/api-reference.md](docs/api-reference.md).
+
 ## Examples
 
-Sample files live in `examples/` for docs and tests:
+Sample files in `examples/`:
 
 - `whisper_sample.json` — Whisper JSON with real word timestamps
 - `sample.srt` — SRT fallback with approximate word timing
@@ -151,14 +177,12 @@ Sample files live in `examples/` for docs and tests:
 
 ## Release checks
 
-Before tagging `v0.1.0`, run:
-
 ```bash
 python -m pytest -q
 python scripts/release_check.py
 ```
 
-Optional: if system `ffmpeg` and `ffprobe` are installed, pytest also exercises a tiny real render smoke test. Machines without FFmpeg skip that test automatically.
+Optional: pytest runs a tiny FFmpeg smoke test when `ffmpeg` and `ffprobe` are on `PATH`; otherwise skipped.
 
 Do not publish to PyPI unless explicitly decided. Tag manually when ready:
 
@@ -167,57 +191,37 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-See `RELEASE_CHECKLIST.md` for the complete checklist.
+See [docs/release.md](docs/release.md) and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 ## Manual real OpenAI karaoke video smoke test
 
-`scripts/real_openai_karaoke_video_smoke.py` is a **manual** end-to-end smoke test that proves the full workflow:
+> **Warning:** Uses **real OpenAI API credits**. Not part of normal pytest.
 
-`audio/video file → OpenAI whisper-1 transcription → karaoke_engine → .ass → FFmpeg burn-in → karaoke_output.mp4`
+`scripts/real_openai_karaoke_video_smoke.py` proves the full workflow:
 
-Important:
+`media → OpenAI whisper-1 → karaoke_engine → .ass → FFmpeg → karaoke_output.mp4`
 
-- This script uses **real OpenAI API credits**.
-- It requires `OPENAI_API_KEY` in the environment. The key is never printed or stored by the script.
-- It requires network access.
-- It requires system `ffmpeg` and `ffprobe` on `PATH` when video rendering is requested.
-- It is **not** part of normal pytest.
-- The `openai` package is required for this script only (`pip install openai`); it is not a runtime dependency of `karaoke_engine`.
+- Requires `OPENAI_API_KEY` in environment (never printed by script)
+- Requires `pip install openai` (not a core runtime dependency)
+- Requires network and FFmpeg/FFprobe for video render
 
-Windows CMD examples:
-
-```cmd
-set OPENAI_API_KEY=sk-your-key-here
-python -c "import os; print('ok' if os.environ.get('OPENAI_API_KEY') else 'missing')"
-python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp4
-```
-
-Windows PowerShell examples:
+**PowerShell:**
 
 ```powershell
 $env:OPENAI_API_KEY = "sk-your-key-here"
-python -c "import os; print('ok' if os.environ.get('OPENAI_API_KEY') else 'missing')"
-python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp4
+python scripts/real_openai_karaoke_video_smoke.py demo.mp4
 ```
 
-Use `set` in CMD or `$env:...` in PowerShell — they are not interchangeable. The variable must be set in the same terminal where you run the script.
+**Audio with generated test video:**
 
-Audio-only with a generated black test video:
-
-```cmd
-set OPENAI_API_KEY=sk-...
-python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp3 --make-test-video
+```powershell
+python scripts/real_openai_karaoke_video_smoke.py demo.mp3 --make-test-video
 ```
 
-Explicit background video for audio input:
+Full details: [docs/real-openai-smoke-test.md](docs/real-openai-smoke-test.md)
 
-```cmd
-set OPENAI_API_KEY=sk-...
-python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp3 --video samples/background.mp4
-```
-
-Expected outputs in `real_api_smoke_output/` (or `--output-dir`):
+Expected outputs in `real_api_smoke_output/`:
 
 - `openai_whisper_transcript.json`
 - `karaoke.ass`
-- `karaoke_output.mp4` (when video rendering runs)
+- `karaoke_output.mp4` (when video render runs)
