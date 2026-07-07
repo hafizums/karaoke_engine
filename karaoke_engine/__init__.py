@@ -16,7 +16,14 @@ from karaoke_engine.models import (
     ValidationWarning,
     Word,
 )
-from karaoke_engine.parsers import load_whisper_json, parse_whisper_json
+from karaoke_engine.parsers import (
+    load_srt,
+    load_vtt,
+    load_whisper_json,
+    parse_srt_text,
+    parse_vtt_text,
+    parse_whisper_json,
+)
 from karaoke_engine.render import (
     RenderOptions,
     RenderVideoResult,
@@ -51,7 +58,11 @@ __all__ = [
     "build_ffmpeg_ass_burn_command",
     "build_ffprobe_command",
     "escape_ass_text",
+    "load_srt",
+    "load_vtt",
     "load_whisper_json",
+    "parse_srt_text",
+    "parse_vtt_text",
     "parse_whisper_json",
     "probe_video",
     "render_ass_to_video",

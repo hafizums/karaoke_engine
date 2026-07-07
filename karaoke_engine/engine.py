@@ -9,12 +9,14 @@ from karaoke_engine.ass.styles import KaraokeStyle
 from karaoke_engine.ass.writer import AssWriter
 from karaoke_engine.errors import AssGenerationError, UnsupportedTranscriptFormatError
 from karaoke_engine.models import KaraokeDocument
+from karaoke_engine.parsers.srt import load_srt
+from karaoke_engine.parsers.vtt import load_vtt
 from karaoke_engine.parsers.whisper_json import load_whisper_json
 from karaoke_engine.render.ffmpeg import RenderOptions, render_ass_to_video
 from karaoke_engine.render.probe import probe_video
 from karaoke_engine.segmenter import SegmentOptions, segment_document
 
-_SUPPORTED_TRANSCRIPT_SUFFIXES = {".json"}
+_SUPPORTED_TRANSCRIPT_SUFFIXES = {".json", ".srt", ".vtt"}
 _DEFAULT_PLAY_RES_X = 1920
 _DEFAULT_PLAY_RES_Y = 1080
 
@@ -58,7 +60,7 @@ class KaraokeEngine:
         play_res_y: int = 1080,
         title: str = "Karaoke",
     ) -> CreateAssResult:
-        """Load Whisper JSON, optionally segment, and write a karaoke ASS file."""
+        """Load a transcript, optionally segment, and write a karaoke ASS file."""
         parsed = _load_transcript(Path(transcript_path))
         final_document = (
             segment_document(parsed, segment_options)
@@ -153,11 +155,16 @@ class KaraokeEngine:
 
 def _load_transcript(path: Path) -> KaraokeDocument:
     suffix = path.suffix.lower()
-    if suffix not in _SUPPORTED_TRANSCRIPT_SUFFIXES:
-        raise UnsupportedTranscriptFormatError(
-            f"Unsupported transcript format {path.suffix!r}: only .json is supported"
-        )
-    return load_whisper_json(path)
+    if suffix == ".json":
+        return load_whisper_json(path)
+    if suffix == ".srt":
+        return load_srt(path)
+    if suffix == ".vtt":
+        return load_vtt(path)
+    raise UnsupportedTranscriptFormatError(
+        f"Unsupported transcript format {path.suffix!r}: "
+        "supported formats are .json, .srt, and .vtt"
+    )
 
 
 def _count_words(document: KaraokeDocument) -> int:

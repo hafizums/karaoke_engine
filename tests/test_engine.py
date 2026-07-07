@@ -206,7 +206,7 @@ def test_unsupported_extension_raises(
 ) -> None:
     transcript = tmp_path / "transcript.txt"
     transcript.write_text("not json", encoding="utf-8")
-    with pytest.raises(UnsupportedTranscriptFormatError, match="only .json is supported"):
+    with pytest.raises(UnsupportedTranscriptFormatError, match="supported formats"):
         engine.create_ass(
             transcript_path=transcript,
             output_path=tmp_path / "karaoke.ass",

@@ -4,9 +4,9 @@ Lightweight, server-friendly karaoke subtitle engine for Python 3.10+.
 
 ## What it does
 
-`karaoke_engine` converts **OpenAI Whisper `verbose_json` transcripts** (with word-level timestamps) into **karaoke `.ass` subtitle files**, and can optionally **burn subtitles into MP4 video** using system FFmpeg:
+`karaoke_engine` converts subtitle transcripts into **karaoke `.ass` subtitle files**, and can optionally **burn subtitles into MP4 video** using system FFmpeg:
 
-1. Parse Whisper JSON
+1. Parse Whisper JSON, SRT, or VTT
 2. Optionally segment long lines into readable karaoke lines
 3. Write ASS with `\kf` karaoke timing
 4. Optionally render burned-in karaoke video with FFmpeg
@@ -16,11 +16,12 @@ Lightweight, server-friendly karaoke subtitle engine for Python 3.10+.
 - It does **not** transcribe audio.
 - It does **not** call OpenAI or any external API.
 - It does **not** require PyTorch, CUDA, or local Whisper.
-- **SRT** and **VTT** parsers are not implemented yet.
 
 ## Supported input
 
-Current supported input is **Whisper JSON with word timestamps** (root-level `words` or `segments[].words`).
+- **Whisper JSON with word timestamps** — best option; provides real per-word karaoke timing.
+- **SRT** — supported with **approximate** word timing derived by evenly splitting each cue duration across its words. SRT files usually do not contain true word-level timestamps.
+- **VTT (WebVTT)** — supported with **approximate** word timing using the same cue-duration split approach. VTT files usually do not contain true word-level timestamps.
 
 ## Optional FFmpeg rendering
 
@@ -33,7 +34,7 @@ pip install -e ".[dev]"
 python -m pytest -q
 ```
 
-## Basic ASS usage
+## Basic ASS usage (Whisper JSON)
 
 ```python
 from karaoke_engine import KaraokeEngine, KaraokeStyle, SegmentOptions
@@ -46,6 +47,19 @@ result = engine.create_ass(
     segment_options=SegmentOptions(max_words_per_line=5),
 )
 print(result.ass_path)
+```
+
+## Basic ASS usage (SRT fallback)
+
+```python
+from karaoke_engine import KaraokeEngine
+
+engine = KaraokeEngine()
+result = engine.create_ass(
+    transcript_path="lyrics.srt",
+    output_path="karaoke.ass",
+)
+print(result.source_format)  # srt_approx
 ```
 
 ## Basic video render usage
@@ -68,6 +82,8 @@ print(result.output_path)
 You can also use the components directly:
 
 - `parse_whisper_json()` / `load_whisper_json()`
+- `parse_srt_text()` / `load_srt()`
+- `parse_vtt_text()` / `load_vtt()`
 - `segment_document()`
 - `AssWriter`
 - `build_ffmpeg_ass_burn_command()` / `render_ass_to_video()`
