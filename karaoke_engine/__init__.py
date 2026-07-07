@@ -14,6 +14,7 @@ from karaoke_engine.models import (
     ValidationWarning,
     Word,
 )
+from karaoke_engine.parsers import load_whisper_json, parse_whisper_json
 
 __all__ = [
     "AssGenerationError",
@@ -28,6 +29,8 @@ __all__ = [
     "ValidationWarning",
     "Word",
     "escape_ass_text",
+    "load_whisper_json",
+    "parse_whisper_json",
 ]
 
 __version__ = "0.1.0"
