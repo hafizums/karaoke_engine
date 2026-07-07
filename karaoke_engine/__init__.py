@@ -15,6 +15,7 @@ from karaoke_engine.models import (
     Word,
 )
 from karaoke_engine.parsers import load_whisper_json, parse_whisper_json
+from karaoke_engine.segmenter import SegmentOptions, segment_document
 
 __all__ = [
     "AssGenerationError",
@@ -23,6 +24,7 @@ __all__ = [
     "KaraokeEngineError",
     "KaraokeLine",
     "KaraokeStyle",
+    "SegmentOptions",
     "TranscriptValidationError",
     "UnsupportedTranscriptFormatError",
     "ValidationReport",
@@ -31,6 +33,7 @@ __all__ = [
     "escape_ass_text",
     "load_whisper_json",
     "parse_whisper_json",
+    "segment_document",
 ]
 
 __version__ = "0.1.0"
