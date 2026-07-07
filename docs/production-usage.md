@@ -6,7 +6,7 @@ Related: [API reference](api-reference.md) · [FFmpeg rendering](ffmpeg-renderin
 
 `karaoke_engine` is a **library**, not a web service. Your application owns orchestration:
 
-```
+```text
 1. Obtain transcript (your app calls OpenAI or loads existing file)
 2. Save transcript to temp/storage path
 3. karaoke_engine.create_ass() or render_video()

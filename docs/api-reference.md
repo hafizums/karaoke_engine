@@ -186,6 +186,10 @@ document = load_vtt("captions.vtt")
 
 All parsers return `KaraokeDocument` and run validation.
 
+Whisper JSON parser note: words with `end <= start` are normalized to
+`end = start + 0.01` seconds before validation. See
+[Supported inputs](supported-inputs.md#zero-duration-word-normalization-current-parser-behavior).
+
 ---
 
 ## segment_document()

@@ -26,11 +26,15 @@ Rendered in dialogue text as:
 
 Minimum duration is **1 centisecond** (0.01 s), even for very short words.
 
+Whisper JSON words with `start == end` are normalized to `end = start + 0.01` in the
+parser before ASS generation. See
+[Supported inputs](supported-inputs.md#zero-duration-word-normalization-current-parser-behavior).
+
 ## Line structure
 
 Each `KaraokeLine` becomes one `Dialogue:` event:
 
-```
+```text
 Dialogue: 0,0:00:00.00,0:00:01.55,Karaoke,,0,0,0,,{\kf40}Aku {\kf35}cinta {\kf80}padamu
 ```
 
@@ -115,11 +119,17 @@ ASS alignment is 1–9 (numpad layout). Default presets use `2` (bottom center).
 - `{` `}` → `\{` `\}`
 - newlines → `\N`
 
-Validation rejects raw ASS override tags in transcript **text** (`{...}`) to prevent injection. User-supplied lyrics should be treated as untrusted input; the engine escapes dialogue text but your app should still validate sources.
+Validation rejects raw ASS override tags in transcript **text** (`{...}`) to
+prevent injection.
+
+User-supplied lyrics should be treated as untrusted input. The engine escapes
+dialogue text, but your app should still validate sources.
 
 ## Segmentation interaction
 
-`KaraokeEngine.create_ass(segment=True)` runs `segment_document()` before writing ASS. This splits long word sequences into multiple dialogue lines based on [SegmentOptions](api-reference.md#segmentoptions).
+`KaraokeEngine.create_ass(segment=True)` runs `segment_document()` before writing
+ASS. This splits long word sequences into multiple dialogue lines based on
+[SegmentOptions](api-reference.md#segmentoptions).
 
 ## Customization checklist
 

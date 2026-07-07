@@ -6,7 +6,17 @@ PASS
 
 ## Summary
 
-Created a full `docs/` documentation set covering installation, quickstart, supported inputs, API reference, ASS karaoke behavior, FFmpeg rendering, manual OpenAI smoke testing, production usage, troubleshooting, development, and release. Updated `README.md` as a clean entry point with documentation links while preserving existing usage examples, production warnings, and release commands.
+Created a full `docs/` documentation set covering installation, quickstart,
+supported inputs, API reference, ASS karaoke behavior, FFmpeg rendering, manual
+OpenAI smoke testing, production usage, troubleshooting, development, and
+release.
+
+Updated `README.md` as a clean entry point with documentation links while
+preserving existing usage examples, production warnings, and release commands.
+
+A follow-up formatting pass normalized markdown for GitHub readability (LF line
+endings, spacing around headings/tables, fenced code blocks, and wrapped
+paragraphs).
 
 ## Files Created
 
@@ -27,6 +37,8 @@ Created a full `docs/` documentation set covering installation, quickstart, supp
 ## Files Modified
 
 - `README.md`
+- All files under `docs/` (formatting fix)
+- `GATE_10_DOCUMENTATION_REPORT.md` (formatting fix and Gate 10 Fix section)
 
 ## Dependencies Added
 
@@ -55,15 +67,71 @@ Paste:
 
 ```
 python -m pytest -q
-........................................................................ [ 38%]
-........................................................................ [ 77%]
-.........................................                                [100%]
-185 passed in 0.56s
 ```
+
+(See **Gate 10 Fix** section below for latest output.)
 
 ## Release Check Result
 
 Paste:
+
+```
+python scripts/release_check.py
+```
+
+(See **Gate 10 Fix** section below for latest output.)
+
+## Important Notes
+
+- **SRT/VTT timing** is documented as approximate (`srt_approx` / `vtt_approx`);
+  not suitable for production karaoke without Whisper JSON.
+- **OpenAI transcription** is documented as external to the package; only the
+  manual `scripts/real_openai_karaoke_video_smoke.py` uses the API.
+- **Frappe integration** is described as a future app-layer pattern only — not
+  implemented in this repo.
+- **PyPI publishing** is explicitly documented as not done unless decided later.
+- **Zero-duration OpenAI words** (`start == end`) are documented as **current
+  parser behavior**: `karaoke_engine/parsers/whisper_json.py` sets
+  `end = start + 0.01` seconds when `end <= start`.
+- **Overlapping word warnings** in validation are documented in troubleshooting
+  as warnings, not hard failures.
+- **No engine behavior was changed in this documentation commit.**
+
+## Gate 10 Fix
+
+### Issue
+
+Documentation markdown was compressed into long single-line files (CRLF-only
+content without consistent spacing) and needed readable formatting for raw
+GitHub viewing.
+
+### Files Modified
+
+- `docs/index.md`
+- `docs/quickstart.md`
+- `docs/installation.md`
+- `docs/supported-inputs.md`
+- `docs/api-reference.md`
+- `docs/ass-karaoke.md`
+- `docs/ffmpeg-rendering.md`
+- `docs/real-openai-smoke-test.md`
+- `docs/production-usage.md`
+- `docs/troubleshooting.md`
+- `docs/development.md`
+- `docs/release.md`
+- `GATE_10_DOCUMENTATION_REPORT.md`
+
+### Test Result
+
+```
+python -m pytest -q
+........................................................................ [ 38%]
+........................................................................ [ 77%]
+.........................................                                [100%]
+185 passed in 0.58s
+```
+
+### Release Check Result
 
 ```
 python scripts/release_check.py
@@ -80,16 +148,6 @@ PASS: example create_ass workflow succeeded
 
 OVERALL: PASS
 ```
-
-## Important Notes
-
-- **SRT/VTT timing** is documented as approximate (`srt_approx` / `vtt_approx`); not suitable for production karaoke without Whisper JSON.
-- **OpenAI transcription** is documented as external to the package; only the manual `scripts/real_openai_karaoke_video_smoke.py` uses the API.
-- **Frappe integration** is described as a future app-layer pattern only — not implemented in this repo.
-- **PyPI publishing** is explicitly documented as not done unless decided later.
-- **Zero-duration OpenAI words** (`start == end`) are documented as normalized by the Whisper JSON parser (0.01 s minimum).
-- **Overlapping word warnings** in validation are documented in troubleshooting as warnings, not hard failures.
-- No engine behavior was changed for this documentation gate.
 
 ## Gatekeeper Review Request
 

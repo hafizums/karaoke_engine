@@ -130,9 +130,14 @@ See [Real OpenAI smoke test](real-openai-smoke-test.md).
 
 ## Zero-duration words from OpenAI
 
-**Symptom:** Previously `Word end time must be greater than start time` with equal timestamps.
+**Symptom:** `Word end time must be greater than start time` when `start == end`.
 
-**Fix:** Parser normalizes `start == end` to +0.01 s. Upgrade to latest code if you still see this on old builds.
+**Cause:** OpenAI Whisper API sometimes returns equal start/end timestamps.
+
+**Fix (current parser behavior):** The Whisper JSON parser sets
+`end = start + 0.01` seconds when `end <= start`. Ensure you are on a build
+that includes this normalization. See
+[Supported inputs](supported-inputs.md#zero-duration-word-normalization-current-parser-behavior).
 
 ## Validation: overlapping words
 

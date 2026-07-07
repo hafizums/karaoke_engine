@@ -64,7 +64,7 @@ Use when `audio_codec="copy"` fails (incompatible container/codec). See [Trouble
 
 By default, ASS is written next to the output video:
 
-```
+```text
 output/karaoke_output.mp4
 output/karaoke_output.ass   ← default sidecar path
 ```
@@ -101,7 +101,7 @@ engine.render_video(
 
 `build_ffmpeg_ass_burn_command()` produces a list like:
 
-```
+```text
 ffmpeg -y -i <video> -vf ass=<escaped-ass-path> -c:v libx264 -crf 18 -preset veryfast -c:a copy <output>
 ```
 
@@ -139,6 +139,7 @@ command = build_ffmpeg_ass_burn_command(
     options=RenderOptions(),
 )
 # Inspect command before running, or:
+
 result = render_ass_to_video(
     video_path="in.mp4",
     ass_path="subs.ass",

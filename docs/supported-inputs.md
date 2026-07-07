@@ -46,9 +46,18 @@ Use OpenAI Whisper `verbose_json` output with word-level timestamps. This is the
 }
 ```
 
-### API normalization
+### Zero-duration word normalization (current parser behavior)
 
-The parser normalizes zero-duration words (`start == end`) from real OpenAI responses to a minimum duration of 0.01 seconds so validation and ASS generation succeed.
+OpenAI Whisper sometimes returns words where `start` equals `end` (zero duration).
+
+The Whisper JSON parser in `karaoke_engine/parsers/whisper_json.py` handles this
+**before** validation:
+
+- When `end <= start`, the parser sets `end = start + 0.01` seconds.
+- This matches the ASS writer minimum of 1 centisecond per `\kf` tag.
+
+This is **current engine behavior** (not documentation-only). It prevents
+`TranscriptValidationError` on otherwise valid API responses.
 
 ### Example file
 
@@ -56,7 +65,9 @@ The parser normalizes zero-duration words (`start == end`) from real OpenAI resp
 
 ## SRT — approximate word timing
 
-SRT files provide cue-level start/end times, not per-word timestamps. The engine splits each cue duration evenly across whitespace-separated words.
+SRT files provide cue-level start/end times, not per-word timestamps.
+
+The engine splits each cue duration evenly across whitespace-separated words.
 
 ### Example
 
@@ -106,7 +117,10 @@ Hello world!
 | Use case | Production karaoke | Fallback when only captions exist |
 | `source_format` | `whisper_json` | `srt_approx` / `vtt_approx` |
 
-SRT and VTT cannot recover true syllable or word alignment from cue timing alone. The engine documents this via `source_format` so callers can branch on quality expectations.
+SRT and VTT cannot recover true syllable or word alignment from cue timing alone.
+
+The engine documents this via `source_format` so callers can branch on quality
+expectations.
 
 ## Loading transcripts directly
 

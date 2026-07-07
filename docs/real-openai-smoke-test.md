@@ -6,7 +6,7 @@ Related: [Quickstart](quickstart.md) · [Supported inputs](supported-inputs.md) 
 
 `scripts/real_openai_karaoke_video_smoke.py` is a **manual** script that proves the full pipeline:
 
-```
+```text
 audio/video → OpenAI whisper-1 → verbose_json → karaoke_engine → .ass → FFmpeg → .mp4
 ```
 
@@ -112,7 +112,11 @@ Default directory: `real_api_smoke_output/`
 
 ## OpenAI API quirks
 
-Real Whisper responses may include words with `start == end`. The Whisper JSON parser normalizes these to a minimum 0.01 s duration before ASS generation.
+Real Whisper responses may include words where `start == end`.
+
+**Current parser behavior:** `karaoke_engine/parsers/whisper_json.py` normalizes
+these to a minimum duration of **0.01 seconds** before validation and ASS
+generation. See [Supported inputs — zero-duration normalization](supported-inputs.md#zero-duration-word-normalization-current-parser-behavior).
 
 ## Exit codes
 
