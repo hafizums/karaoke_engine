@@ -235,7 +235,7 @@ def test_invalid_transcript_raises_validation_error(
         json.dumps(
             {
                 "words": [
-                    {"word": "bad", "start": 1.0, "end": 1.0},
+                    {"word": r"{\kf99}hack", "start": 0.0, "end": 0.5},
                 ]
             }
         ),

@@ -11,6 +11,7 @@ from karaoke_engine.models import KaraokeDocument, KaraokeLine, Word
 from karaoke_engine.validators import ensure_valid_document
 
 _SOURCE_FORMAT = "whisper_json"
+_MIN_WORD_DURATION_SECONDS = 0.01
 
 
 def parse_whisper_json(data: dict[str, Any]) -> KaraokeDocument:
@@ -132,8 +133,16 @@ def _parse_word_entry(entry: Any, *, path: str) -> Word:
     text = _extract_word_text(entry, path=path)
     start = _extract_timestamp(entry, field="start", path=path)
     end = _extract_timestamp(entry, field="end", path=path)
+    end = _normalize_word_end(start, end)
 
     return Word(text=text, start=start, end=end)
+
+
+def _normalize_word_end(start: float, end: float) -> float:
+    """Ensure word duration is positive for real API payloads with start == end."""
+    if end <= start:
+        return start + _MIN_WORD_DURATION_SECONDS
+    return end
 
 
 def _extract_word_text(entry: dict[str, Any], *, path: str) -> str:

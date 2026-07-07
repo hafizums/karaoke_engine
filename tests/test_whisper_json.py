@@ -143,9 +143,24 @@ def test_rejects_empty_text() -> None:
         parse_whisper_json({"words": [{"word": "   ", "start": 0.0, "end": 0.4}]})
 
 
-def test_rejects_invalid_timing() -> None:
-    with pytest.raises(TranscriptValidationError, match="greater than start time"):
-        parse_whisper_json({"words": [{"word": "Aku", "start": 1.0, "end": 1.0}]})
+def test_normalizes_zero_duration_words_from_openai_api() -> None:
+    document = parse_whisper_json({"words": [{"word": "Aku", "start": 1.0, "end": 1.0}]})
+    word = document.lines[0].words[0]
+    assert word.start == 1.0
+    assert word.end == pytest.approx(1.01)
+
+
+def test_normalizes_real_openai_zero_duration_payload() -> None:
+    payload = {
+        "words": [
+            {"word": "like", "start": 19.72, "end": 19.72},
+            {"word": "ini", "start": 29.94, "end": 29.94},
+            {"word": "kasih", "start": 30.62, "end": 30.62},
+        ]
+    }
+    document = parse_whisper_json(payload)
+    for word in document.lines[0].words:
+        assert word.end > word.start
 
 
 def test_rejects_malformed_json_file(tmp_path: Path) -> None:

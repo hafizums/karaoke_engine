@@ -168,3 +168,56 @@ git push origin v0.1.0
 ```
 
 See `RELEASE_CHECKLIST.md` for the complete checklist.
+
+## Manual real OpenAI karaoke video smoke test
+
+`scripts/real_openai_karaoke_video_smoke.py` is a **manual** end-to-end smoke test that proves the full workflow:
+
+`audio/video file → OpenAI whisper-1 transcription → karaoke_engine → .ass → FFmpeg burn-in → karaoke_output.mp4`
+
+Important:
+
+- This script uses **real OpenAI API credits**.
+- It requires `OPENAI_API_KEY` in the environment. The key is never printed or stored by the script.
+- It requires network access.
+- It requires system `ffmpeg` and `ffprobe` on `PATH` when video rendering is requested.
+- It is **not** part of normal pytest.
+- The `openai` package is required for this script only (`pip install openai`); it is not a runtime dependency of `karaoke_engine`.
+
+Windows CMD examples:
+
+```cmd
+set OPENAI_API_KEY=sk-your-key-here
+python -c "import os; print('ok' if os.environ.get('OPENAI_API_KEY') else 'missing')"
+python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp4
+```
+
+Windows PowerShell examples:
+
+```powershell
+$env:OPENAI_API_KEY = "sk-your-key-here"
+python -c "import os; print('ok' if os.environ.get('OPENAI_API_KEY') else 'missing')"
+python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp4
+```
+
+Use `set` in CMD or `$env:...` in PowerShell — they are not interchangeable. The variable must be set in the same terminal where you run the script.
+
+Audio-only with a generated black test video:
+
+```cmd
+set OPENAI_API_KEY=sk-...
+python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp3 --make-test-video
+```
+
+Explicit background video for audio input:
+
+```cmd
+set OPENAI_API_KEY=sk-...
+python scripts/real_openai_karaoke_video_smoke.py samples/test_song.mp3 --video samples/background.mp4
+```
+
+Expected outputs in `real_api_smoke_output/` (or `--output-dir`):
+
+- `openai_whisper_transcript.json`
+- `karaoke.ass`
+- `karaoke_output.mp4` (when video rendering runs)

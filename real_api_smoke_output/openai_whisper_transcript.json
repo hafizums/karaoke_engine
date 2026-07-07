@@ -1,0 +1,118 @@
+{
+  "duration": 30.639999389648438,
+  "language": "indonesian",
+  "text": "Dulu dulu waktu baru kawin tidak berenggang pegang pegang tangan sayang sayang dibelai menjauh menjauh kalau sudah lama hilang kau bagusu",
+  "segments": null,
+  "usage": {
+    "seconds": 31.0,
+    "type": "duration"
+  },
+  "words": [
+    {
+      "end": 7.179999828338623,
+      "start": 5.78000020980835,
+      "word": "Dulu"
+    },
+    {
+      "end": 8.579999923706055,
+      "start": 7.179999828338623,
+      "word": "dulu"
+    },
+    {
+      "end": 9.4399995803833,
+      "start": 8.579999923706055,
+      "word": "waktu"
+    },
+    {
+      "end": 10.199999809265137,
+      "start": 9.4399995803833,
+      "word": "baru"
+    },
+    {
+      "end": 11.239999771118164,
+      "start": 10.199999809265137,
+      "word": "kawin"
+    },
+    {
+      "end": 12.84000015258789,
+      "start": 11.239999771118164,
+      "word": "tidak"
+    },
+    {
+      "end": 14.34000015258789,
+      "start": 12.84000015258789,
+      "word": "berenggang"
+    },
+    {
+      "end": 15.579999923706055,
+      "start": 14.34000015258789,
+      "word": "pegang"
+    },
+    {
+      "end": 16.200000762939453,
+      "start": 15.579999923706055,
+      "word": "pegang"
+    },
+    {
+      "end": 17.760000228881836,
+      "start": 16.200000762939453,
+      "word": "tangan"
+    },
+    {
+      "end": 19.1200008392334,
+      "start": 17.760000228881836,
+      "word": "sayang"
+    },
+    {
+      "end": 20.0,
+      "start": 19.1200008392334,
+      "word": "sayang"
+    },
+    {
+      "end": 21.360000610351562,
+      "start": 20.0,
+      "word": "dibelai"
+    },
+    {
+      "end": 22.31999969482422,
+      "start": 21.360000610351562,
+      "word": "menjauh"
+    },
+    {
+      "end": 23.639999389648438,
+      "start": 22.31999969482422,
+      "word": "menjauh"
+    },
+    {
+      "end": 24.34000015258789,
+      "start": 23.639999389648438,
+      "word": "kalau"
+    },
+    {
+      "end": 25.059999465942383,
+      "start": 24.34000015258789,
+      "word": "sudah"
+    },
+    {
+      "end": 26.280000686645508,
+      "start": 25.059999465942383,
+      "word": "lama"
+    },
+    {
+      "end": 27.280000686645508,
+      "start": 26.280000686645508,
+      "word": "hilang"
+    },
+    {
+      "end": 27.700000762939453,
+      "start": 27.280000686645508,
+      "word": "kau"
+    },
+    {
+      "end": 29.579999923706055,
+      "start": 27.700000762939453,
+      "word": "bagusu"
+    }
+  ],
+  "task": "transcribe"
+}
