@@ -2,6 +2,8 @@
 
 Lightweight, server-friendly karaoke subtitle engine for Python 3.10+.
 
+**Status:** initial release candidate (`0.1.0`).
+
 ## Features
 
 - Parse Whisper JSON, SRT, and WebVTT transcripts
@@ -37,7 +39,10 @@ SRT and VTT files usually provide line-level cues only. This engine derives appr
 ```bash
 pip install -e ".[dev]"
 python -m pytest -q
+python scripts/release_check.py
 ```
+
+See `RELEASE_CHECKLIST.md` for the full pre-tag release workflow.
 
 ## Basic ASS generation (Whisper JSON)
 
@@ -138,8 +143,28 @@ except RenderError as exc:
 
 ## Examples
 
-Sample files live in `examples/`:
+Sample files live in `examples/` for docs and tests:
 
-- `whisper_sample.json`
-- `sample.srt`
-- `sample.vtt`
+- `whisper_sample.json` — Whisper JSON with real word timestamps
+- `sample.srt` — SRT fallback with approximate word timing
+- `sample.vtt` — WebVTT fallback with approximate word timing
+
+## Release checks
+
+Before tagging `v0.1.0`, run:
+
+```bash
+python -m pytest -q
+python scripts/release_check.py
+```
+
+Optional: if system `ffmpeg` and `ffprobe` are installed, pytest also exercises a tiny real render smoke test. Machines without FFmpeg skip that test automatically.
+
+Do not publish to PyPI unless explicitly decided. Tag manually when ready:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+See `RELEASE_CHECKLIST.md` for the complete checklist.

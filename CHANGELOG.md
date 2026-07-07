@@ -14,6 +14,7 @@ All notable changes to `karaoke_engine` are documented in this file.
 - Gate 6: optional FFmpeg/FFprobe video rendering via `KaraokeEngine.render_video()`.
 - Gate 7: SRT and VTT fallback parsers with approximate word timing.
 - Gate 8: production hardening, examples, README/CHANGELOG updates, and expanded validation.
+- Gate 9: release checklist, packaging checks, example workflow tests, and release script.
 
 ### Notes
 
