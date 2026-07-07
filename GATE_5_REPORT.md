@@ -346,3 +346,24 @@ Dialogue: 0,0:00:00.00,0:00:01.55,Karaoke,,0,0,0,,{\kf40}Aku {\kf35}cinta {\kf80
 ## Gatekeeper Review Request
 
 Please review Gate 5 and tell me whether it is APPROVED or BLOCKED.
+
+## Gate 5 Fix
+
+### Issue
+
+Root package exports were missing for `KaraokeEngine` and `CreateAssResult`.
+
+### Files Modified
+
+- `karaoke_engine/__init__.py` — import `CreateAssResult` and `KaraokeEngine` from `karaoke_engine.engine` and add both to `__all__`
+- `tests/test_engine.py` — add `test_root_package_direct_import` confirming `from karaoke_engine import CreateAssResult, KaraokeEngine`
+- `GATE_5_REPORT.md` — document this fix
+
+### Test Result
+
+```
+python -m pytest -q
+......................................................................... [ 85%]
+............                                                             [100%]
+84 passed in 0.15s
+```

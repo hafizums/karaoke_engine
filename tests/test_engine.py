@@ -261,3 +261,12 @@ def test_public_exports_work() -> None:
     assert karaoke_engine.CreateAssResult is not None
     assert "KaraokeEngine" in karaoke_engine.__all__
     assert "CreateAssResult" in karaoke_engine.__all__
+
+
+def test_root_package_direct_import() -> None:
+    from karaoke_engine import CreateAssResult, KaraokeEngine
+    from karaoke_engine.engine import CreateAssResult as EngineCreateAssResult
+    from karaoke_engine.engine import KaraokeEngine as EngineKaraokeEngine
+
+    assert KaraokeEngine is EngineKaraokeEngine
+    assert CreateAssResult is EngineCreateAssResult
