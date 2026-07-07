@@ -256,6 +256,53 @@ def escape_ass_text(text: str) -> str:
 - **Line/word timing consistency**: Line-level `start`/`end` are validated independently from constituent word timings; cross-field consistency (e.g., line start equals first word start) is not enforced in Gate 1.
 - **No `__init__.py` in `tests/`**: Pytest discovers tests without a package `tests` module; acceptable for now but may matter if shared fixtures are added later.
 
+## Gate 1 Hygiene Fix
+
+### Files removed
+
+Removed from git tracking and working tree:
+
+- `karaoke_engine.egg-info/` (entire directory)
+  - `PKG-INFO`
+  - `SOURCES.txt`
+  - `dependency_links.txt`
+  - `requires.txt`
+  - `top_level.txt`
+- `karaoke_engine/__pycache__/` (4 `.pyc` files)
+- `karaoke_engine/ass/__pycache__/` (2 `.pyc` files)
+- `karaoke_engine/utils/__pycache__/` (2 `.pyc` files)
+- `tests/__pycache__/` (3 `.pyc` files)
+- `.pytest_cache/` (untracked; deleted from working tree)
+
+### `.gitignore` contents
+
+```
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Test / tooling caches
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+```
+
+### Pytest result
+
+```
+python -m pytest -q
+............                                                             [100%]
+12 passed in 0.04s
+```
+
 ## Gatekeeper Review Request
 
 Please review Gate 1 and tell me whether it is APPROVED or BLOCKED.
