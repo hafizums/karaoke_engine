@@ -15,3 +15,7 @@ class TranscriptValidationError(KaraokeEngineError):
 
 class AssGenerationError(KaraokeEngineError):
     """Raised when ASS subtitle generation fails."""
+
+
+class RenderError(KaraokeEngineError):
+    """Raised when FFmpeg video rendering or probing fails."""

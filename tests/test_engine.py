@@ -248,12 +248,11 @@ def test_invalid_transcript_raises_validation_error(
         )
 
 
-def test_no_ffmpeg_or_render_video_behavior() -> None:
+def test_no_bundled_ffmpeg_at_package_root() -> None:
     root_names = set(dir(karaoke_engine))
-    assert "render_video" not in root_names
     assert "FFmpeg" not in root_names
-    engine_names = set(dir(KaraokeEngine))
-    assert "render_video" not in engine_names
+    assert hasattr(KaraokeEngine, "render_video")
+    assert "render_ass_to_video" in karaoke_engine.__all__
 
 
 def test_public_exports_work() -> None:
